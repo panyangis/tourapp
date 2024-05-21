@@ -1,0 +1,46 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "岳麓山风景名胜区",
+                "address": "登高路58号"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    112.936152,
+                    28.183606
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "橘子洲风景名胜区",
+                "address": "橘子洲头2号"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    112.963081,
+                    28.196505
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "name": "五一广场",
+                "address": "黄兴中路88号"
+            },
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    112.977340,
+                    28.1965
+                ]
+            }
+        }]
+}
