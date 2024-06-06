@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>长沙市景点热度分布</title>
+		<meta name="description" content="长沙市1000条景点数据的热力分布情况，颜色和高度表示定位聚合后的情况。">
+		<link rel="stylesheet" href="//a.amap.com/jsapi_demos/static/demo-center/css/demo-center.css" />
+		<style>
+			html,
+			body,
+			#container {
+				margin: 0;
+				padding: 0;
+				width: 100%;
+				height: 100%;
+			}
+
+			/* 图例样式 */
+			.legend {
+				position: absolute;
+				top: 450px;
+				left: 20px;
+			}
+
+			.legend ul {
+				padding: 0;
+				margin: 0;
+				list-style: none;
+			}
+
+			.color-item {
+				width: 60px;
+				height: 20px;
+				display: inline-block;
+			}
+
+			.label-item {
+				display: inline-block;
+				width: 60px;
+				margin-left: -2px;
+				font-size: 14px;
+			}
+
+			.info {
+				position: absolute;
+				top: 500px;
+				left: 20px;
+				width: 150px;
+			}
+
+			/* 信息浮框 */
+			.info span {
+				min-width: 100px;
+				max-width: 150px;
+				color: #1b91ff;
+				font-size: 1.2em;
+			}
+
+
+			.amap-logo {
+				display: none;
+				opacity: 0 !important;
+			}
+
+			.amap-copyright {
+				opacity: 0;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="container"></div>
+		<div class="legend">
+			<ul class="labels" id="legend-label"></ul>
+			<ul class="colors" id="legend-color"></ul>
+
+		</div>
+		<div class="info" style="width: 300px;">
+			<h4>热力数据</h4>
+			<p>当前热力值：<span id="val">--</span></p>
+			<p>热力中心点坐标：
+				<span id="lng-lat">--</span>
+			</p>
+		</div>
+		<script src="//webapi.amap.com/loca?v=1.2.0&key=0c98ca29e35114981e32cd86293258f3"></script>
+		<script src="//a.amap.com/Loca/static/dist/jquery.min.js"></script>
+		<script>
+			var map = Loca.create('container', {
+				pitch: 70,
+				center: [112.94, 28.166505],
+				zoom: 11,
+				features: ['bg', 'road']
+			});
+
+			var layer = Loca.visualLayer({
+				container: map,
+				eventSupport: true,
+				type: 'heatmap',
+				shape: 'hexagon' // 蜂窝六边形
+			});
+
+			$.get('//panyangis.github.io/tourapp/static/changsha.csv', function(csv) {
+				layer.setData(csv, {
+					lnglat: 'lnglat',
+					value: 'cnt',
+					type: 'csv'
+				});
+
+				layer.setOptions({
+					unit: 'meter',
+					heightUnit: 'meter',
+					style: {
+						color: [
+							'#2c7bb6',
+							'#abd9e9',
+							'#ffffbf',
+							'#fdae61',
+							'#d7191c'
+						],
+						height: [0, 8000],
+						radius: 150,
+						gap: 20,
+						opacity: 0.85,
+					},
+					selectStyle: {
+						color: '#dbf21d',
+						opacity: 0.9
+					}
+				});
+
+				layer.render();
+			});
+
+
+			layer.on('legendupdate', function(ev) {
+				var colorLegend = ev.colorLegend;
+				initLegend(colorLegend);
+			});
+
+			layer.on('mousemove', function(ev) {
+				updateInfo(ev);
+			});
+
+			function initLegend(colorLegend) {
+				var legends = colorLegend.map(function(item) {
+					return `<li class="color-item" style="background-color: ${item.color}"></li>`
+				});
+
+				var ranges = colorLegend.map((item, index) => {
+					// range 可能为小数，可以自行取整计算
+					item.range[0] = Math.round(item.range[0]);
+					item.range[1] = Math.round(item.range[1]);
+
+					if (index == colorLegend.length - 1) {
+						return `<li class="label-item">${item.range[0]}</li><li class="label-item">${item.range[1]}</li>`;
+					}
+					return `<li class="label-item">${item.range[0]}</li>`;
+				});
+
+				document.getElementById('legend-color').innerHTML = legends.join('');
+				document.getElementById('legend-label').innerHTML = ranges.join('');
+			}
+
+			function updateInfo(ev) {
+				var $val = document.getElementById('val');
+				var $lngLat = document.getElementById('lng-lat');
+
+				$val.innerText = ev.value;
+				$lngLat.innerText = ev.lngLat.valueOf();
+			}
+		</script>
+	</body>
+</html>
